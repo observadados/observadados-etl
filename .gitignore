@@ -1,0 +1,27 @@
+# Arquivos de apoio
+_apoio
+
+# Arquivos e diretórios do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Diretórios temporários
+.tmp/
+.tmp-*/
+tmp-*/
+
+# Arquivos baixados locais (Armazenamento pesado)
+source-files/
+
+# Banco de dados e logs locais
+collectors.db
+*.log
+
+# Variáveis de ambiente (Segurança: chaves e senhas do WP)
+.env
+.env.*
+*.env
+
+# Excetua o arquivo de exemplo
+!.env.example

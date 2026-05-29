@@ -238,6 +238,10 @@ def main() -> int:
                     conn, source.id, "error", error_message="Falha no download HTTP"
                 )
 
+    # 4. Enviar e-mail de resumo para o admin
+    if args.publish_wordpress and published_items:
+        send_admin_email(published_items)
+
     return 0
 
 

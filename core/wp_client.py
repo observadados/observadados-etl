@@ -215,6 +215,7 @@ def publish_to_wordpress(
             "frequencia": freq_value,
             "arquivos": merged_files,
             "tratamento": tratamento_val,
+            "data_ultima_varredura": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
         
         if instituicao_id:
@@ -270,3 +271,92 @@ def publish_to_wordpress(
     except Exception as e:
         print(f"ERRO WP: {e}", file=sys.stderr)
         return None, None, None
+
+
+def update_last_scan_only(conn: sqlite3.Connection, source_id: int) -> bool:
+    """
+    Atualiza apenas o campo ACF 'data_ultima_varredura' no WordPress para o dataset correspondente,
+    sem fazer upload de arquivo ou alterar outras informações.
+    """
+    _load_env()
+    wp_url = os.environ.get("WP_URL")
+    wp_user = os.environ.get("WP_USER")
+    wp_pass = os.environ.get("WP_APP_PASSWORD")
+
+    if not wp_url or not wp_user or not wp_pass:
+        print(
+            "⚠️ Ignorando atualização de varredura no WordPress: credenciais incompletas no arquivo .env ou no ambiente.",
+            file=sys.stderr,
+        )
+        return False
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT wp_post_id, collector_key, uf FROM sources WHERE id = ?", (source_id,))
+    row = cursor.fetchone()
+    if not row:
+        return False
+
+    wp_post_id, collector_key, uf = row
+    if not wp_post_id:
+        if uf:
+            cursor.execute(
+                """
+                SELECT wp_post_id FROM sources 
+                WHERE collector_key = ? AND uf = ? AND wp_post_id IS NOT NULL 
+                LIMIT 1
+            """,
+                (collector_key, uf),
+            )
+        else:
+            cursor.execute("""
+                SELECT wp_post_id FROM sources 
+                WHERE collector_key = ? AND uf IS NULL AND wp_post_id IS NOT NULL 
+                LIMIT 1
+            """)
+        shared_row = cursor.fetchone()
+        if shared_row:
+            wp_post_id = shared_row[0]
+            cursor.execute("UPDATE sources SET wp_post_id = ? WHERE id = ?", (wp_post_id, source_id))
+            conn.commit()
+
+    if not wp_post_id:
+        print(
+            f"⚠️ Não foi possível atualizar a varredura para a fonte {source_id}: nenhum post_id associado.",
+            file=sys.stderr,
+        )
+        return False
+
+    print(
+        f"⏱️ Atualizando a data da última varredura no WP (Post ID: {wp_post_id})...",
+        end=" ",
+        file=sys.stderr,
+        flush=True,
+    )
+
+    api_datasets = f"{wp_url.rstrip('/')}/wp-json/wp/v2/dataset"
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    post_payload = {
+        "acf": {
+            "data_ultima_varredura": current_time
+        }
+    }
+
+    try:
+        headers = {"Content-Type": "application/json"}
+        response = requests.post(
+            f"{api_datasets}/{wp_post_id}",
+            auth=(wp_user, wp_pass),
+            headers=headers,
+            data=json.dumps(post_payload),
+            timeout=30,
+        )
+        if response.status_code == 200:
+            print("OK", file=sys.stderr)
+            return True
+        else:
+            print(f"ERRO: {response.status_code} - {response.text}", file=sys.stderr)
+            return False
+    except Exception as e:
+        print(f"ERRO: {e}", file=sys.stderr)
+        return False

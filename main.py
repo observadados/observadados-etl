@@ -14,7 +14,7 @@ from core.db_manager import (
     record_download_history,
 )
 from core.downloader import download_file, filename_for_source
-from core.wp_client import publish_to_wordpress
+from core.wp_client import publish_to_wordpress, update_last_scan_only
 from core.base_scraper import BaseScraper
 from core.profiler import profile_file
 from core.mailer import send_admin_email
@@ -150,11 +150,22 @@ def main() -> int:
         for item in final_downloads:
             out_path = uf_dir / item["filename"]
 
-            # Checar se o arquivo já existe
-            if out_path.exists() and not args.overwrite:
+            # Checar se o arquivo já existe e se já existe post no WP para apenas atualizar a data de varredura
+            file_exists = out_path.exists()
+            cursor = conn.cursor()
+            cursor.execute("SELECT wp_post_id FROM sources WHERE id = ?", (source.id,))
+            existing_post = cursor.fetchone()
+            wp_post_id = existing_post[0] if existing_post else None
+
+            if file_exists and not args.overwrite:
                 print(
                     f"⏩ Arquivo já existe e --overwrite não foi passado: {item['filename']}"
                 )
+                if args.publish_wordpress and wp_post_id:
+                    update_last_scan_only(conn, source.id)
+                    record_download_history(conn, source.id, "skipped", out_path.stat().st_size)
+                    continue
+                
                 success = True
                 size = out_path.stat().st_size
             else:

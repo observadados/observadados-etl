@@ -1,5 +1,6 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
+import os
 from typing import List, Dict
 from urllib.parse import urljoin
 
@@ -16,6 +17,9 @@ class ScraperCE(BaseScraper):
     a página, contornando o bloqueio, e depois extrai os links via CSS selector.
     """
 
+    # Flag de ambiente: em container Docker/CI costuma não ter sandbox
+    _IN_CONTAINER = os.path.exists("/.dockerenv") or os.environ.get("PLAYWRIGHT_NO_SANDBOX")
+
     def discover_datasets(self, url: str, css_selector: str = None) -> List[Dict[str, str]]:
         if not css_selector:
             raise NotImplementedError(
@@ -26,23 +30,36 @@ class ScraperCE(BaseScraper):
 
         datasets: List[Dict[str, str]] = []
 
+        launch_args = [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",   # usa /tmp em vez de /dev/shm (evita crash em Docker)
+            "--disable-gpu",
+        ]
+
+        # Em container com pouca memória, single-process reduz uso de RAM
+        if self._IN_CONTAINER:
+            launch_args.append("--single-process")
+
         with sync_playwright() as pw:
-            browser = pw.chromium.launch(
-                headless=True,
-                args=[
-                    "--no-sandbox",
-                    "--disable-setuid-sandbox",
-                    "--disable-dev-shm-usage",
-                    "--disable-gpu",
-                ],
-            )
+            try:
+                browser = pw.chromium.launch(
+                    headless=True,
+                    args=launch_args,
+                )
+            except Exception as e:
+                raise RuntimeError(
+                    f"Falha ao iniciar o Chromium. "
+                    f"Verifique se playwright install --with-deps chromium foi executado. "
+                    f"Detalhe: {e}"
+                ) from e
+
             context = browser.new_context(
                 user_agent=(
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                     "AppleWebKit/537.36 (KHTML, like Gecko) "
                     "Chrome/124.0.0.0 Safari/537.36"
                 ),
-                # Simula viewport real para nao ser detectado como headless
                 viewport={"width": 1280, "height": 800},
                 locale="pt-BR",
             )
@@ -50,15 +67,12 @@ class ScraperCE(BaseScraper):
             page = context.new_page()
 
             try:
-                # Aguarda ate o DOM estar estavel (networkidle pode travar em sites lentos)
-                page.goto(url, wait_until="domcontentloaded", timeout=60000)
+                page.goto(url, wait_until="domcontentloaded", timeout=60_000)
 
-                # Aguarda ate que pelo menos um elemento que bata com o seletor apareca,
-                # ou ate 15 s (evita espera infinita em paginas sem os links)
+                # Aguarda o seletor aparecer no DOM ou retorna vazio após timeout
                 try:
-                    page.wait_for_selector(css_selector, timeout=15000)
+                    page.wait_for_selector(css_selector, timeout=15_000)
                 except PWTimeout:
-                    # Se nao encontrar nada dentro do prazo, retorna lista vazia
                     return []
 
                 elements = page.query_selector_all(css_selector)
@@ -79,3 +93,4 @@ class ScraperCE(BaseScraper):
                 browser.close()
 
         return datasets
+

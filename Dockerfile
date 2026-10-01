@@ -16,36 +16,14 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Dependências de sistema para o Chromium headless (Playwright)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Libs gráficas e de sistema exigidas pelo Chromium
-    libnss3 \
-    libnspr4 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
-    libdrm2 \
-    libdbus-1-3 \
-    libxkbcommon0 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxrandr2 \
-    libgbm1 \
-    libasound2 \
-    libpango-1.0-0 \
-    libcairo2 \
-    libatspi2.0-0 \
-    # Dependências extras de renderização
-    fonts-liberation \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copia dependências Python do build stage
+# Copia dependências Python do build stage antes do playwright install-deps,
+# pois o CLI do playwright precisa estar disponível para instalar as libs do sistema
 COPY --from=builder /install /usr/local
 
-# Instala o browser Chromium via playwright CLI
-RUN playwright install chromium
+# Instala o Chromium E todas as suas dependências de sistema automaticamente.
+# --with-deps detecta a distro (Debian/Ubuntu) e instala os pacotes apt corretos.
+# Isso substitui a listagem manual de libs, que é frágil e varia por versão do Debian.
+RUN playwright install --with-deps chromium
 
 # Copia o código-fonte
 COPY . .

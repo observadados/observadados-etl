@@ -1,5 +1,8 @@
 # ── Build stage ─────────────────────────────────────────────────────────────
-FROM python:3.11-slim AS builder
+# Fixado em Bookworm (Debian 12): versão oficialmente suportada pelo Playwright.
+# NÃO usar python:3.11-slim genérico — atualmente resolve para Trixie (Debian 13),
+# que não é reconhecido pelo playwright install --with-deps e falha o build.
+FROM python:3.11-slim-bookworm AS builder
 
 WORKDIR /app
 
@@ -12,7 +15,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # ── Runtime stage ────────────────────────────────────────────────────────────
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 

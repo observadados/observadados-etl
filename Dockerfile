@@ -36,7 +36,8 @@ RUN mkdir -p /app/source-files
 
 # Variáveis de ambiente (sobrescritas pelo Coolify via Environment Variables)
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    TZ=America/Sao_Paulo
 
 # O container não expõe porta — é um worker/cron, não um servidor web
 CMD ["python", "main.py", "--publish-wordpress"]

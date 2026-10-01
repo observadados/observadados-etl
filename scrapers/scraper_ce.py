@@ -74,6 +74,10 @@ class ScraperCE(BaseScraper):
                 title  = page.title() or "(sem título)"
                 print(f"    [HTTP {status}] {title[:70]}")
 
+                if response and response.status in (401, 403):
+                    print("    [AVISO] Acesso bloqueado por WAF/IP (HTTP 403). Pulando fonte.")
+                    return []
+
                 # Aguarda o seletor aparecer no DOM (até 30 s)
                 try:
                     page.wait_for_selector(css_selector, timeout=30_000)

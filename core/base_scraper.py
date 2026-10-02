@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 class BaseScraper:
     def __init__(self, base_url: str):
@@ -11,13 +11,25 @@ class BaseScraper:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
         })
 
-    def get_html(self, url: str) -> BeautifulSoup:
+    def get_html(self, url: str) -> Optional[BeautifulSoup]:
         """
         Faz requisição GET e retorna o objeto BeautifulSoup.
+        Usa timeout=(5, 25): 5s para conexão TCP (identifica rapidamente bloqueio por firewall/WAF)
+        e 25s para recebimento dos dados.
         """
-        response = self.session.get(url, timeout=30)
-        response.raise_for_status()
-        return BeautifulSoup(response.text, 'html.parser')
+        try:
+            response = self.session.get(url, timeout=(5, 25))
+            if response.status_code in (401, 403):
+                print(f"    [AVISO] Acesso bloqueado por WAF/IP (HTTP {response.status_code}). Pulando fonte.")
+                return None
+            response.raise_for_status()
+            return BeautifulSoup(response.text, 'html.parser')
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
+            print("    [AVISO] Conexão bloqueada por firewall ou timeout (IP descartado/inacessível). Pulando fonte.")
+            return None
+        except requests.exceptions.RequestException as e:
+            print(f"    [AVISO] Falha ao acessar URL ({e}). Pulando fonte.")
+            return None
 
     def discover_datasets(self, url: str, css_selector: str = None) -> List[Dict[str, str]]:
         """
@@ -29,6 +41,9 @@ class BaseScraper:
             raise NotImplementedError("Nenhum seletor CSS fornecido e método não sobrescrito na classe filha.")
             
         soup = self.get_html(url)
+        if not soup:
+            return []
+
         datasets = []
         for element in soup.select(css_selector):
             if element.has_attr('href'):

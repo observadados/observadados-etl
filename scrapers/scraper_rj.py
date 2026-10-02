@@ -14,6 +14,8 @@ class ScraperRJ(BaseScraper):
         # Exemplo: O RJ possui CSVs na página principal de Dados Abertos
         # e as URLs geralmente contêm 'Base' ou 'Series'
         soup = self.get_html(url)
+        if not soup:
+            return []
         datasets = []
         for link in soup.select("a[href$='.csv']"):
             real_url = link['href']

@@ -1,0 +1,1469 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-04T16:50:02-03:00",
+  "generator": "observadados-etl/profiler 2.0",
+  "file": {
+    "name": "Banco Crimes Violentos 2012 a 2018 - Atualizado Novembro 2025.csv",
+    "format": "csv",
+    "size_bytes": 76004312,
+    "encoding": "utf-8",
+    "delimiter": ";",
+    "sheet": null
+  },
+  "rows": 931476,
+  "rows_exact": true,
+  "columns": 8,
+  "profiled_rows": 931476,
+  "sampled": false,
+  "sample": {
+    "columns": [
+      "Registros",
+      "Natureza",
+      "Município",
+      "Cód. IBGE",
+      "Mês",
+      "Ano Fato",
+      "RISP",
+      "RMBH"
+    ],
+    "rows": [
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ABADIA DOS DOURADOS",
+        "310010",
+        "1",
+        "2012",
+        "RISP 10 - PATOS DE MINAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ABAETE",
+        "310020",
+        "1",
+        "2012",
+        "RISP 7 - DIVINÓPOLIS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ABRE-CAMPO",
+        "310030",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ACAIACA",
+        "310040",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ACUCENA",
+        "310050",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "1",
+        "ESTUPRO CONSUMADO",
+        "AGUA BOA",
+        "310060",
+        "1",
+        "2012",
+        "RISP 14 - CURVELO",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "AGUA COMPRIDA",
+        "310070",
+        "1",
+        "2012",
+        "RISP 5 - UBERABA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "AGUANIL",
+        "310080",
+        "1",
+        "2012",
+        "RISP 6 - LAVRAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "AGUAS FORMOSAS",
+        "310090",
+        "1",
+        "2012",
+        "RISP 15 - TEÓFILO OTONI",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "AGUAS VERMELHAS",
+        "310100",
+        "1",
+        "2012",
+        "RISP 15 - TEÓFILO OTONI",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "AIMORES",
+        "310110",
+        "1",
+        "2012",
+        "RISP 8 - GOV. VALADARES",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "AIURUOCA",
+        "310120",
+        "1",
+        "2012",
+        "RISP 17 - POUSO ALEGRE",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALAGOA",
+        "310130",
+        "1",
+        "2012",
+        "RISP 17 - POUSO ALEGRE",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALBERTINA",
+        "310140",
+        "1",
+        "2012",
+        "RISP 17 - POUSO ALEGRE",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALEM PARAIBA",
+        "310150",
+        "1",
+        "2012",
+        "RISP 4 - JUIZ DE FORA",
+        "NÃO"
+      ],
+      [
+        "1",
+        "ESTUPRO CONSUMADO",
+        "ALFENAS",
+        "310160",
+        "1",
+        "2012",
+        "RISP 18 - POÇOS DE CALDAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALFREDO VASCONCELOS",
+        "310163",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALMENARA",
+        "310170",
+        "1",
+        "2012",
+        "RISP 15 - TEÓFILO OTONI",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALPERCATA",
+        "310180",
+        "1",
+        "2012",
+        "RISP 8 - GOV. VALADARES",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALPINOPOLIS",
+        "310190",
+        "1",
+        "2012",
+        "RISP 18 - POÇOS DE CALDAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALTEROSA",
+        "310200",
+        "1",
+        "2012",
+        "RISP 18 - POÇOS DE CALDAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALTO CAPARAO",
+        "310205",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALTO JEQUITIBA",
+        "315350",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALTO RIO DOCE",
+        "310210",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALVARENGA",
+        "310220",
+        "1",
+        "2012",
+        "RISP 8 - GOV. VALADARES",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALVINOPOLIS",
+        "310230",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ALVORADA DE MINAS",
+        "310240",
+        "1",
+        "2012",
+        "RISP 14 - CURVELO",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "AMPARO DA SERRA",
+        "310250",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ANDRADAS",
+        "310260",
+        "1",
+        "2012",
+        "RISP 18 - POÇOS DE CALDAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ANDRELANDIA",
+        "310280",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ANGELANDIA",
+        "310285",
+        "1",
+        "2012",
+        "RISP 14 - CURVELO",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ANTONIO CARLOS",
+        "310290",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ANTONIO DIAS",
+        "310300",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ANTONIO PRADO DE MINAS",
+        "310310",
+        "1",
+        "2012",
+        "RISP 4 - JUIZ DE FORA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARACAI",
+        "310320",
+        "1",
+        "2012",
+        "RISP 19 - SETE LAGOAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARACITABA",
+        "310330",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "1",
+        "ESTUPRO CONSUMADO",
+        "ARACUAI",
+        "310340",
+        "1",
+        "2012",
+        "RISP 15 - TEÓFILO OTONI",
+        "NÃO"
+      ],
+      [
+        "3",
+        "ESTUPRO CONSUMADO",
+        "ARAGUARI",
+        "310350",
+        "1",
+        "2012",
+        "RISP 9 - UBERLÂNDIA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARANTINA",
+        "310360",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARAPONGA",
+        "310370",
+        "1",
+        "2012",
+        "RISP 4 - JUIZ DE FORA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARAPORA",
+        "310375",
+        "1",
+        "2012",
+        "RISP 9 - UBERLÂNDIA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARAPUA",
+        "310380",
+        "1",
+        "2012",
+        "RISP 10 - PATOS DE MINAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARAUJOS",
+        "310390",
+        "1",
+        "2012",
+        "RISP 7 - DIVINÓPOLIS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARAXA",
+        "310400",
+        "1",
+        "2012",
+        "RISP 5 - UBERABA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARCEBURGO",
+        "310410",
+        "1",
+        "2012",
+        "RISP 18 - POÇOS DE CALDAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARCOS",
+        "310420",
+        "1",
+        "2012",
+        "RISP 7 - DIVINÓPOLIS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "AREADO",
+        "310430",
+        "1",
+        "2012",
+        "RISP 18 - POÇOS DE CALDAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARGIRITA",
+        "310440",
+        "1",
+        "2012",
+        "RISP 4 - JUIZ DE FORA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ARICANDUVA",
+        "310445",
+        "1",
+        "2012",
+        "RISP 14 - CURVELO",
+        "NÃO"
+      ],
+      [
+        "1",
+        "ESTUPRO CONSUMADO",
+        "ARINOS",
+        "310450",
+        "1",
+        "2012",
+        "RISP 16 - UNAÍ",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ASTOLFO DUTRA",
+        "310460",
+        "1",
+        "2012",
+        "RISP 4 - JUIZ DE FORA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "ATALEIA",
+        "310470",
+        "1",
+        "2012",
+        "RISP 15 - TEÓFILO OTONI",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "AUGUSTO DE LIMA",
+        "310480",
+        "1",
+        "2012",
+        "RISP 14 - CURVELO",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BAEPENDI",
+        "310490",
+        "1",
+        "2012",
+        "RISP 17 - POUSO ALEGRE",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BALDIM",
+        "310500",
+        "1",
+        "2012",
+        "RISP 19 - SETE LAGOAS",
+        "SIM"
+      ],
+      [
+        "1",
+        "ESTUPRO CONSUMADO",
+        "BAMBUI",
+        "310510",
+        "1",
+        "2012",
+        "RISP 7 - DIVINÓPOLIS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BANDEIRA",
+        "310520",
+        "1",
+        "2012",
+        "RISP 15 - TEÓFILO OTONI",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BANDEIRA DO SUL",
+        "310530",
+        "1",
+        "2012",
+        "RISP 18 - POÇOS DE CALDAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BARAO DE COCAIS",
+        "310540",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BARAO DO MONTE ALTO",
+        "310550",
+        "1",
+        "2012",
+        "RISP 4 - JUIZ DE FORA",
+        "NÃO"
+      ],
+      [
+        "1",
+        "ESTUPRO CONSUMADO",
+        "BARBACENA",
+        "310560",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BARRA LONGA",
+        "310570",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BARROSO",
+        "310590",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BELA VISTA DE MINAS",
+        "310600",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BELMIRO BRAGA",
+        "310610",
+        "1",
+        "2012",
+        "RISP 4 - JUIZ DE FORA",
+        "NÃO"
+      ],
+      [
+        "27",
+        "ESTUPRO CONSUMADO",
+        "BELO HORIZONTE",
+        "310620",
+        "1",
+        "2012",
+        "RISP 1 - BH",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BELO ORIENTE",
+        "310630",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BELO VALE",
+        "310640",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BERILO",
+        "310650",
+        "1",
+        "2012",
+        "RISP 14 - CURVELO",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BERIZAL",
+        "310665",
+        "1",
+        "2012",
+        "RISP 11 - MONTES CLAROS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BERTOPOLIS",
+        "310660",
+        "1",
+        "2012",
+        "RISP 15 - TEÓFILO OTONI",
+        "NÃO"
+      ],
+      [
+        "4",
+        "ESTUPRO CONSUMADO",
+        "BETIM",
+        "310670",
+        "1",
+        "2012",
+        "RISP 2 - CONTAGEM",
+        "SIM"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BIAS FORTES",
+        "310680",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BICAS",
+        "310690",
+        "1",
+        "2012",
+        "RISP 4 - JUIZ DE FORA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BIQUINHAS",
+        "310700",
+        "1",
+        "2012",
+        "RISP 7 - DIVINÓPOLIS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOA ESPERANCA",
+        "310710",
+        "1",
+        "2012",
+        "RISP 6 - LAVRAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOCAINA DE MINAS",
+        "310720",
+        "1",
+        "2012",
+        "RISP 17 - POUSO ALEGRE",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOCAIUVA",
+        "310730",
+        "1",
+        "2012",
+        "RISP 11 - MONTES CLAROS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOM DESPACHO",
+        "310740",
+        "1",
+        "2012",
+        "RISP 7 - DIVINÓPOLIS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOM JARDIM DE MINAS",
+        "310750",
+        "1",
+        "2012",
+        "RISP 13 - BARBACENA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOM JESUS DA PENHA",
+        "310760",
+        "1",
+        "2012",
+        "RISP 18 - POÇOS DE CALDAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOM JESUS DO AMPARO",
+        "310770",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOM JESUS DO GALHO",
+        "310780",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOM REPOUSO",
+        "310790",
+        "1",
+        "2012",
+        "RISP 17 - POUSO ALEGRE",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOM SUCESSO",
+        "310800",
+        "1",
+        "2012",
+        "RISP 6 - LAVRAS",
+        "NÃO"
+      ],
+      [
+        "1",
+        "ESTUPRO CONSUMADO",
+        "BONFIM",
+        "310810",
+        "1",
+        "2012",
+        "RISP 2 - CONTAGEM",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BONFINOPOLIS DE MINAS",
+        "310820",
+        "1",
+        "2012",
+        "RISP 16 - UNAÍ",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BONITO DE MINAS",
+        "310825",
+        "1",
+        "2012",
+        "RISP 11 - MONTES CLAROS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BORDA DA MATA",
+        "310830",
+        "1",
+        "2012",
+        "RISP 17 - POUSO ALEGRE",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOTELHOS",
+        "310840",
+        "1",
+        "2012",
+        "RISP 18 - POÇOS DE CALDAS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BOTUMIRIM",
+        "310850",
+        "1",
+        "2012",
+        "RISP 11 - MONTES CLAROS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BRAS PIRES",
+        "310870",
+        "1",
+        "2012",
+        "RISP 4 - JUIZ DE FORA",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BRASILANDIA DE MINAS",
+        "310855",
+        "1",
+        "2012",
+        "RISP 16 - UNAÍ",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BRASILIA DE MINAS",
+        "310860",
+        "1",
+        "2012",
+        "RISP 11 - MONTES CLAROS",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BRASOPOLIS",
+        "310890",
+        "1",
+        "2012",
+        "RISP 17 - POUSO ALEGRE",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BRAUNAS",
+        "310880",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ],
+      [
+        "1",
+        "ESTUPRO CONSUMADO",
+        "BRUMADINHO",
+        "310900",
+        "1",
+        "2012",
+        "RISP 2 - CONTAGEM",
+        "SIM"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BUENO BRANDAO",
+        "310910",
+        "1",
+        "2012",
+        "RISP 17 - POUSO ALEGRE",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BUENOPOLIS",
+        "310920",
+        "1",
+        "2012",
+        "RISP 14 - CURVELO",
+        "NÃO"
+      ],
+      [
+        "0",
+        "ESTUPRO CONSUMADO",
+        "BUGRE",
+        "310925",
+        "1",
+        "2012",
+        "RISP 12 - IPATINGA",
+        "NÃO"
+      ]
+    ]
+  },
+  "fields": [
+    {
+      "name": "Registros",
+      "position": 0,
+      "type": "integer",
+      "missing": 0,
+      "missing_pct": 0,
+      "unique": 560,
+      "unique_is_estimate": false,
+      "description": null,
+      "stats": {
+        "min": 0,
+        "max": 4304,
+        "mean": 0.8917,
+        "median": 0,
+        "std": 30.3431,
+        "q1": 0,
+        "q3": 0
+      },
+      "histogram": {
+        "bins": [
+          0,
+          215.2,
+          430.4,
+          645.6,
+          860.8,
+          1076,
+          1291.2,
+          1506.4,
+          1721.6,
+          1936.8,
+          2152,
+          2367.2,
+          2582.4,
+          2797.6,
+          3012.8,
+          3228,
+          3443.2,
+          3658.4,
+          3873.6,
+          4088.8,
+          4304
+        ],
+        "counts": [
+          931000,
+          257,
+          60,
+          28,
+          29,
+          18,
+          0,
+          1,
+          12,
+          10,
+          3,
+          5,
+          10,
+          10,
+          7,
+          0,
+          11,
+          6,
+          3,
+          6
+        ]
+      }
+    },
+    {
+      "name": "Natureza",
+      "position": 1,
+      "type": "categorical",
+      "missing": 0,
+      "missing_pct": 0,
+      "unique": 13,
+      "unique_is_estimate": false,
+      "description": null,
+      "top": [
+        {
+          "value": "ESTUPRO CONSUMADO",
+          "count": 71652,
+          "pct": 7.69
+        },
+        {
+          "value": "ESTUPRO DE VULNERAVEL CONSUMADO",
+          "count": 71652,
+          "pct": 7.69
+        },
+        {
+          "value": "ESTUPRO DE VULNERAVEL TENTADO",
+          "count": 71652,
+          "pct": 7.69
+        },
+        {
+          "value": "ESTUPRO TENTADO",
+          "count": 71652,
+          "pct": 7.69
+        },
+        {
+          "value": "EXTORSAO CONSUMADO",
+          "count": 71652,
+          "pct": 7.69
+        },
+        {
+          "value": "EXTORSAO MEDIANTE SEQUESTRO CONSUMADO",
+          "count": 71652,
+          "pct": 7.69
+        },
+        {
+          "value": "EXTORSAO TENTADO",
+          "count": 71652,
+          "pct": 7.69
+        },
+        {
+          "value": "HOMICIDIO CONSUMADO (REGISTROS)",
+          "count": 71652,
+          "pct": 7.69
+        },
+        {
+          "value": "HOMICIDIO TENTADO",
+          "count": 71652,
+          "pct": 7.69
+        },
+        {
+          "value": "ROUBO CONSUMADO",
+          "count": 71652,
+          "pct": 7.69
+        }
+      ],
+      "other_pct": 23.08
+    },
+    {
+      "name": "Município",
+      "position": 2,
+      "type": "categorical",
+      "missing": 0,
+      "missing_pct": 0,
+      "unique": 853,
+      "unique_is_estimate": false,
+      "description": null,
+      "top": [
+        {
+          "value": "ABADIA DOS DOURADOS",
+          "count": 1092,
+          "pct": 0.12
+        },
+        {
+          "value": "ABAETE",
+          "count": 1092,
+          "pct": 0.12
+        },
+        {
+          "value": "ABRE-CAMPO",
+          "count": 1092,
+          "pct": 0.12
+        },
+        {
+          "value": "ACAIACA",
+          "count": 1092,
+          "pct": 0.12
+        },
+        {
+          "value": "ACUCENA",
+          "count": 1092,
+          "pct": 0.12
+        },
+        {
+          "value": "AGUA BOA",
+          "count": 1092,
+          "pct": 0.12
+        },
+        {
+          "value": "AGUA COMPRIDA",
+          "count": 1092,
+          "pct": 0.12
+        },
+        {
+          "value": "AGUANIL",
+          "count": 1092,
+          "pct": 0.12
+        },
+        {
+          "value": "AGUAS FORMOSAS",
+          "count": 1092,
+          "pct": 0.12
+        },
+        {
+          "value": "AGUAS VERMELHAS",
+          "count": 1092,
+          "pct": 0.12
+        }
+      ],
+      "other_pct": 98.83
+    },
+    {
+      "name": "Cód. IBGE",
+      "position": 3,
+      "type": "integer",
+      "missing": 0,
+      "missing_pct": 0,
+      "unique": 853,
+      "unique_is_estimate": false,
+      "description": null,
+      "stats": {
+        "min": 310010,
+        "max": 317220,
+        "mean": 313697.721,
+        "median": 313730,
+        "std": 2070.8873,
+        "q1": 311950,
+        "q3": 315490
+      },
+      "histogram": {
+        "bins": [
+          310010,
+          310370.5,
+          310731,
+          311091.5,
+          311452,
+          311812.5,
+          312173,
+          312533.5,
+          312894,
+          313254.5,
+          313615,
+          313975.5,
+          314336,
+          314696.5,
+          315057,
+          315417.5,
+          315778,
+          316138.5,
+          316499,
+          316859.5,
+          317220
+        ],
+        "counts": [
+          43680,
+          41496,
+          43680,
+          42588,
+          46956,
+          44772,
+          44772,
+          50232,
+          44772,
+          44772,
+          52416,
+          45864,
+          53508,
+          45864,
+          43680,
+          46956,
+          44772,
+          51324,
+          45864,
+          53508
+        ]
+      }
+    },
+    {
+      "name": "Mês",
+      "position": 4,
+      "type": "integer",
+      "missing": 0,
+      "missing_pct": 0,
+      "unique": 12,
+      "unique_is_estimate": false,
+      "description": null,
+      "stats": {
+        "min": 1,
+        "max": 12,
+        "mean": 6.5,
+        "median": 6.5,
+        "std": 3.4521,
+        "q1": 3.75,
+        "q3": 9.25
+      },
+      "histogram": {
+        "bins": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "counts": [
+          77623,
+          77623,
+          77623,
+          77623,
+          77623,
+          77623,
+          77623,
+          77623,
+          77623,
+          77623,
+          77623,
+          77623
+        ]
+      }
+    },
+    {
+      "name": "Ano Fato",
+      "position": 5,
+      "type": "integer",
+      "missing": 0,
+      "missing_pct": 0,
+      "unique": 7,
+      "unique_is_estimate": false,
+      "description": null,
+      "stats": {
+        "min": 2012,
+        "max": 2018,
+        "mean": 2015,
+        "median": 2015,
+        "std": 2,
+        "q1": 2013,
+        "q3": 2017
+      },
+      "histogram": {
+        "bins": [
+          2012,
+          2013,
+          2014,
+          2015,
+          2016,
+          2017,
+          2018,
+          2019
+        ],
+        "counts": [
+          133068,
+          133068,
+          133068,
+          133068,
+          133068,
+          133068,
+          133068
+        ]
+      }
+    },
+    {
+      "name": "RISP",
+      "position": 6,
+      "type": "categorical",
+      "missing": 0,
+      "missing_pct": 0,
+      "unique": 19,
+      "unique_is_estimate": false,
+      "description": null,
+      "top": [
+        {
+          "value": "RISP 12 - IPATINGA",
+          "count": 105924,
+          "pct": 11.37
+        },
+        {
+          "value": "RISP 4 - JUIZ DE FORA",
+          "count": 93912,
+          "pct": 10.08
+        },
+        {
+          "value": "RISP 11 - MONTES CLAROS",
+          "count": 84084,
+          "pct": 9.03
+        },
+        {
+          "value": "RISP 17 - POUSO ALEGRE",
+          "count": 78624,
+          "pct": 8.44
+        },
+        {
+          "value": "RISP 13 - BARBACENA",
+          "count": 66612,
+          "pct": 7.15
+        },
+        {
+          "value": "RISP 15 - TEÓFILO OTONI",
+          "count": 65520,
+          "pct": 7.03
+        },
+        {
+          "value": "RISP 8 - GOV. VALADARES",
+          "count": 63336,
+          "pct": 6.8
+        },
+        {
+          "value": "RISP 18 - POÇOS DE CALDAS",
+          "count": 60060,
+          "pct": 6.45
+        },
+        {
+          "value": "RISP 14 - CURVELO",
+          "count": 56784,
+          "pct": 6.1
+        },
+        {
+          "value": "RISP 7 - DIVINÓPOLIS",
+          "count": 54600,
+          "pct": 5.86
+        }
+      ],
+      "other_pct": 21.69
+    },
+    {
+      "name": "RMBH",
+      "position": 7,
+      "type": "boolean",
+      "missing": 0,
+      "missing_pct": 0,
+      "unique": 2,
+      "unique_is_estimate": false,
+      "description": null,
+      "top": [
+        {
+          "value": "NÃO",
+          "count": 895440,
+          "pct": 96.13
+        },
+        {
+          "value": "SIM",
+          "count": 36036,
+          "pct": 3.87
+        }
+      ],
+      "other_pct": 0
+    }
+  ],
+  "warnings": []
+}

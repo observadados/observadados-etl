@@ -48,7 +48,40 @@ def main() -> int:
         action="store_true",
         help="Limpa completamente o banco de dados SQLite.",
     )
+    reprof = parser.add_argument_group(
+        "reprocessamento de perfis",
+        "Regera o perfil v2 (subcampo ACF `metadados`) dos arquivos já publicados.",
+    )
+    reprof.add_argument(
+        "--reprofile",
+        action="store_true",
+        help="Percorre os posts `dataset` via REST, baixa cada arquivo e atualiza apenas `metadados`.",
+    )
+    reprof.add_argument("--dataset", type=int, action="append", help="ID do post dataset (pode repetir).")
+    reprof.add_argument("--dry-run", action="store_true", help="Gera os perfis mas não grava nada no WordPress.")
+    reprof.add_argument(
+        "--env-file",
+        default=".env.local",
+        help="Arquivo .env com WP_URL/WP_USER/WP_APP_PASSWORD para o --reprofile (padrão: .env.local).",
+    )
+    reprof.add_argument(
+        "--allow-remote",
+        action="store_true",
+        help="Permite --reprofile contra um WP_URL que não seja local (ex.: produção).",
+    )
+    reprof.add_argument("--save-profiles", help="Diretório onde salvar uma cópia de cada perfil gerado.")
     args = parser.parse_args()
+
+    if args.reprofile:
+        from core.reprofile import run_reprofile
+
+        return run_reprofile(
+            dataset_ids=args.dataset,
+            dry_run=args.dry_run,
+            env_file=args.env_file,
+            allow_remote=args.allow_remote,
+            save_dir=args.save_profiles,
+        )
 
     # 1. Setup inicial
     conn = init_db()
@@ -174,18 +207,21 @@ def main() -> int:
 
             if success:
                 print(f"📊 Extraindo metadados...")
-                metadata_json, metadata_html = "{}", "<p>Erro ao extrair metadados.</p>"
-                
+                metadata_json = "{}"
+
                 # Se for ZIP, extrai temporariamente para profiling
                 if out_path.suffix.lower() == '.zip':
                     from core.downloader import extract_zip_temp
                     temp_extracted = None
                     try:
                         temp_extracted = extract_zip_temp(out_path)
-                        metadata_json, metadata_html = profile_file(temp_extracted)
+                        metadata_json = profile_file(
+                            temp_extracted,
+                            display_name=temp_extracted.name.removeprefix("temp_profile_"),
+                        )
                     except Exception as e:
                         print(f"⚠️ Erro ao gerar perfil para o ZIP temporário: {e}")
-                        metadata_json, metadata_html = "{}", f"<p>Erro ao extrair metadados do ZIP: {e}</p>"
+                        metadata_json = "{}"
                     finally:
                         if temp_extracted and temp_extracted.exists():
                             try:
@@ -193,7 +229,7 @@ def main() -> int:
                             except Exception as ex:
                                 print(f"⚠️ Erro ao remover arquivo temporário: {ex}")
                 else:
-                    metadata_json, metadata_html = profile_file(out_path)
+                    metadata_json = profile_file(out_path)
                 
                 # Enviar pro WP apenas se a flag estiver ativa
                 if args.publish_wordpress:
@@ -204,7 +240,7 @@ def main() -> int:
                     was_update = existing_post and existing_post[0] is not None
                     
                     media_id, post_id, status = publish_to_wordpress(
-                        conn, source.id, out_path, metadata_json, metadata_html
+                        conn, source.id, out_path, metadata_json
                     )
                     
                     if post_id:

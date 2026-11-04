@@ -7,16 +7,32 @@ from datetime import datetime
 import requests
 
 
-def _load_env() -> None:
-    env_path = Path(__file__).resolve().parent.parent / ".env"
-    if env_path.exists():
-        with open(env_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                k, v = line.split("=", 1)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _load_env(env_file: str | Path | None = None, override: bool = False) -> Path | None:
+    """
+    Carrega variáveis de um arquivo .env. Sem argumento, usa OBSERVADADOS_ENV_FILE
+    (se definido) ou `.env` na raiz do projeto. Com override=False, variáveis já
+    presentes no ambiente têm precedência. Retorna o caminho carregado (ou None).
+    """
+    env_file = env_file or os.environ.get("OBSERVADADOS_ENV_FILE") or ".env"
+    env_path = Path(env_file)
+    if not env_path.is_absolute():
+        env_path = PROJECT_ROOT / env_path
+    if not env_path.exists():
+        return None
+    with open(env_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            if override:
+                os.environ[k.strip()] = v.strip()
+            else:
                 os.environ.setdefault(k.strip(), v.strip())
+    return env_path
 
 
 def publish_to_wordpress(
@@ -24,7 +40,6 @@ def publish_to_wordpress(
     source_id: int,
     file_path: Path,
     metadata_json: str | None = None,
-    metadata_html: str | None = None,
 ) -> tuple[int | None, int | None, str | None]:
     _load_env()
     wp_url = os.environ.get("WP_URL")
@@ -126,13 +141,10 @@ def publish_to_wordpress(
         description = wp_description or f"Arquivo de coleta automática."
         file_date = datetime.now().strftime("%d/%m/%Y")
 
-        # O campo descricao agora conterá o nome original do arquivo (h3) e o html de metadados em seguida
-        descricao_html = ""
-        if metadata_html:
-            descricao_html += f"\n{metadata_html}"
-
+        # Perfil v2: o JSON vai só em `metadados`; não anexamos mais HTML em `descricao`
+        # (ver docs/profile-schema.md).
         new_file_item = {
-            "descricao": descricao_html,
+            "descricao": "",
             "data": file_date,
             "arquivo": media_id,
             "formato": acf_formato or 5,

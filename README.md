@@ -15,7 +15,7 @@ graph TD
     C -->|Banda Larga| D[Filtros CSS / XPath]
     D -->|3. Downloader Inteligente| E[source-files/ UF/]
     E -->|Se ZIP| F[Extração Temporária em Disco]
-    E -->|4. Profiler de Dados| G[Geração de Esquema JSON e HTML]
+    E -->|4. Profiler de Dados| G[Perfil JSON v2]
     G -->|5. WordPress REST API| H[Biblioteca de Mídia & Posts do ACF]
 ```
 
@@ -27,10 +27,10 @@ graph TD
    - **Bypass de Firewalls**: O robô emula User-Agents legítimos de navegadores para evitar bloqueios e cancelamentos de conexão (erro 10054) comuns em firewalls de órgãos públicos.
 4. **Data Profiling Híbrido (Transform)**:
    - Lê o arquivo localmente. No caso de arquivos grandes compactados em `.zip` (ex: Rio Grande do Sul), o robô extrai temporariamente o arquivo interno para a pasta temporária do sistema operacional, faz a análise estrutural e exclui os arquivos temporários em seguida.
-   - Analisa quantidade de linhas, colunas, tipos de dados de cada coluna e amostras de registros.
-   - Converte essa análise estrutural em um payload de metadados em **JSON** e em uma tabela de visualização estilizada em **HTML**.
+   - Lê o arquivo **inteiro** em blocos (pandas), detectando encoding (UTF-8 → cp1252/latin-1), delimitador e números no formato brasileiro (`1.234,56`).
+   - Gera o perfil **JSON schema v2** (tipos, ausentes, distintos, estatísticas, histogramas, valores mais frequentes, linha do tempo de datas, amostra de 100 linhas e avisos), com no máximo 200 KB. O contrato está em [`docs/profile-schema.md`](docs/profile-schema.md); o tema WordPress só exibe esse JSON.
 5. **Carga Otimizada (Load no WordPress)**:
-   - **Modo Novo Arquivo**: Faz o upload do arquivo binário (ou ZIP original leve) para a biblioteca de mídia do WordPress. Associa-o ao Post do Dataset correspondente e anexa os payloads de metadados JSON e HTML aos campos personalizados do ACF.
+   - **Modo Novo Arquivo**: Faz o upload do arquivo binário (ou ZIP original leve) para a biblioteca de mídia do WordPress. Associa-o ao Post do Dataset correspondente e grava o perfil JSON v2 no subcampo ACF `metadados` (não anexa mais HTML em `descricao`).
    - **Modo Delta/Recorrente (Sem Novo Arquivo)**: Se o arquivo já existe no servidor local e o dataset já está criado no WordPress, o robô faz uma chamada ultrarrápida (partial update) atualizando **apenas** o campo `data_ultima_varredura` no WP via API REST. Isso economiza megabytes de uploads duplicados e tempo de processamento.
 
 ---
@@ -49,7 +49,8 @@ observadados-etl/
 │   ├── db_manager.py     # Controle de banco SQLite e sincronização de fontes CSV
 │   ├── downloader.py     # Downloader resiliente por blocos e descompactador ZIP
 │   ├── mailer.py         # Módulo para envio de e-mails administrativos de relatório
-│   ├── profiler.py       # Gerador de metadados JSON/HTML usando Pandas e openpyxl
+│   ├── profiler.py       # Perfil JSON v2 (docs/profile-schema.md) com pandas e openpyxl
+│   ├── reprofile.py      # --reprofile: regera `metadados` dos posts existentes
 │   └── wp_client.py      # Integração completa com o WordPress (REST API & ACF)
 ├── scrapers/             # Scrapers específicos por portais de estados
 │   ├── __init__.py       # Registro e fábrica de scrapers customizados
@@ -142,6 +143,17 @@ Apaga completamente o banco SQLite local (`collectors.db`), limpando as tabelas 
 ```bash
 python main.py --reset-db
 ```
+
+### 6. Reprocessar os perfis (`metadados`) já publicados
+Percorre os posts `dataset` via REST, baixa cada arquivo do repeater `arquivos`, gera o perfil v2 e atualiza **apenas** o subcampo `metadados` de cada linha (os demais subcampos são preservados). Usa `.env.local` por padrão e recusa um `WP_URL` que não seja local, a menos que `--allow-remote` seja passado:
+
+```bash
+python main.py --reprofile --dry-run                     # não grava nada
+python main.py --reprofile --dataset 432 --dataset 434   # só esses posts
+python main.py --reprofile --dry-run --save-profiles perfis/
+```
+
+Para gerar o perfil de um arquivo local: `python -m core.profiler arquivo.csv -o perfil.json`. Testes: `python -m unittest discover -s tests -v`.
 
 ---
 

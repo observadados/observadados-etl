@@ -97,10 +97,26 @@ class WP:
             with open(dest, "wb") as f:
                 shutil.copyfileobj(r.raw, f, 1024 * 1024)
 
-    def update_arquivos(self, post_id: int, rows: list[dict]) -> None:
+    def required_acf(self) -> list[str]:
+        if not hasattr(self, "_required"):
+            try:
+                r = self.s.options(f"{self.base}/wp-json/wp/v2/dataset", timeout=60)
+                props = r.json()["schema"]["properties"]["acf"]["properties"]
+                self._required = [k for k, v in props.items() if v.get("required")]
+            except Exception:
+                self._required = ["link", "frequencia", "tratamento"]
+        return self._required
+
+    def update_arquivos(self, post_id: int, acf: dict, rows: list[dict]) -> None:
+        # A validação REST da ACF exige no payload os campos marcados como obrigatórios
+        # (ex.: `link`), então os reenviamos como vieram, junto com `arquivos`. Os demais
+        # campos ficam de fora para não esbarrar em validações (ex.: `categorias` vazia
+        # com mínimo de 1 item) e não são alterados.
+        payload = {k: _ref_id(acf[k]) for k in self.required_acf() if k in acf and k != "arquivos"}
+        payload["arquivos"] = rows
         r = self.s.post(
             f"{self.base}/wp-json/wp/v2/dataset/{post_id}",
-            json={"acf": {"arquivos": rows}},
+            json={"acf": payload},
             timeout=120,
         )
         if r.status_code not in (200, 201):
@@ -220,7 +236,7 @@ def run_reprofile(
 
             if changed and not dry_run:
                 try:
-                    wp.update_arquivos(pid, new_rows)
+                    wp.update_arquivos(pid, acf, new_rows)
                     totals["updated"] += 1
                     print(f"   💾 post {pid} atualizado")
                 except Exception as e:

@@ -136,7 +136,10 @@ def resolve_dataset_post(
                              params={"context": "edit", "_fields": "id,status,meta"}, auth=auth, timeout=30)
         except requests.RequestException as exc:
             raise WPLookupError(f"Erro de rede ao ler o post {cached_post_id}: {exc}") from exc
-        if r.status_code == 200:
+        if r.status_code == 200 and r.json().get("status") == "trash":
+            print(f"⚠️ {collector_key}: o post {cached_post_id} em cache está na lixeira; ignorando.",
+                  file=sys.stderr)
+        elif r.status_code == 200:
             meta = _meta(r.json())
             if meta.get("collector_key") in ("", None) or same_collector(meta):
                 return cached_post_id

@@ -94,6 +94,9 @@ class WP:
     def download(self, url: str, dest: Path) -> None:
         with self.s.get(url, stream=True, timeout=300) as r:
             r.raise_for_status()
+            # O Apache da produção serve os arquivos com Content-Encoding: gzip;
+            # sem decode_content, r.raw grava os bytes ainda comprimidos.
+            r.raw.decode_content = True
             with open(dest, "wb") as f:
                 shutil.copyfileobj(r.raw, f, 1024 * 1024)
 

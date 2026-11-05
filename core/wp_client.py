@@ -41,7 +41,8 @@ def _same_file(existing_name: str | None, new_name: str) -> bool:
     """Compara nomes ignorando o sufixo `-N` que o WordPress acrescenta a uploads repetidos."""
     if not existing_name:
         return False
-    strip = lambda n: re.sub(r"-\d+(\.[^.]+)$", r"\1", n.lower())
+    # Só o sufixo curto do WP (-1, -2…); não confundir com o período do arquivo (-202605).
+    strip = lambda n: re.sub(r"-\d{1,3}(\.[^.]+)$", r"\1", n.lower())
     return strip(existing_name) == strip(new_name)
 
 

@@ -25,3 +25,5 @@ collectors.db
 
 # Excetua o arquivo de exemplo
 !.env.example
+# Saídas geradas (cubos dos painéis)
+output/

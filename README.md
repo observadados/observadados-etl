@@ -123,6 +123,17 @@ Baixa as novas fontes e publica arquivos e metadados estruturais na biblioteca d
 python main.py --publish-wordpress
 ```
 
+**Escolher o WordPress de destino:** use `--env-file` em vez de editar o `.env`:
+
+```bash
+python main.py --publish-wordpress --env-file .env.local        # site local
+python main.py --publish-wordpress --env-file .env.production   # observadados.org
+```
+
+Sem `--env-file`, vale a variável `OBSERVADADOS_ENV_FILE` e, depois, o `.env`. No início da execução, o ETL mostra para qual WordPress vai publicar.
+
+Se o destino não for local, ele pede para você digitar `sim`. Sem terminal interativo (cron, Coolify), publicar num site remoto exige `--yes`, por exemplo `python main.py --publish-wordpress --yes`.
+
 **Como o post de cada coletor é encontrado** (`core/wp_resolver.py`): o vínculo coletor → post fica no próprio WordPress, nos metas `collector_key` e `collector_uf` do post `dataset` (registrados pelo tema em `inc/dataset-collector.php`, que precisa estar publicado antes). A busca segue esta ordem:
 
 1. Post com o mesmo `collector_key`/`collector_uf`.

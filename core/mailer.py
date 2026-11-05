@@ -8,18 +8,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 def _load_env():
-    # Helper para garantir que as variáveis de ambiente do mailer estão carregadas
-    from pathlib import Path
-    env_path = Path('.env')
-    if env_path.exists():
-        with open(env_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith('#'):
-                    continue
-                if '=' in line:
-                    k, v = line.split('=', 1)
-                    os.environ.setdefault(k.strip(), v.strip())
+    # Usa o mesmo arquivo escolhido para a publicação (--env-file / OBSERVADADOS_ENV_FILE).
+    from core.wp_client import _load_env as _load_wp_env
+    _load_wp_env()
 
 def send_admin_email(published_items: list[dict[str, object]]) -> None:
     """Envia um e-mail de resumo para o administrador do WordPress quando novos arquivos são publicados."""

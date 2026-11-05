@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
@@ -19,6 +20,49 @@ from core.base_scraper import BaseScraper
 from core.profiler import profile_file
 from core.mailer import send_admin_email
 from scrapers import get_scraper_for
+
+
+def _confirm_wp_target(env_file: str | None, assume_yes: bool) -> bool:
+    """
+    Carrega o .env escolhido, mostra para qual WordPress a coleta vai publicar e,
+    se for um site remoto (produção), pede confirmação. Sem terminal interativo
+    (cron/Coolify), publicar em site remoto exige --yes.
+    """
+    from core.reprofile import is_local_url
+    from core.wp_client import _load_env
+
+    explicit = env_file is not None
+    env_file = env_file or os.environ.get("OBSERVADADOS_ENV_FILE") or ".env"
+    # As funções de publicação recarregam o .env por esta variável.
+    os.environ["OBSERVADADOS_ENV_FILE"] = env_file
+    loaded = _load_env(env_file, override=True)
+    if loaded is None and explicit:
+        print(f"❌ Arquivo de ambiente não encontrado: {env_file}", file=sys.stderr)
+        return False
+
+    wp_url = os.environ.get("WP_URL") or "(WP_URL não definido)"
+    local = is_local_url(wp_url)
+    origem = loaded.name if loaded else "variáveis de ambiente"
+    linha = "=" * 64
+    print(linha)
+    print(f"  Publicação no WordPress: {wp_url}")
+    print(f"  Configuração: {origem}  ->  {'LOCAL' if local else 'REMOTO (PRODUÇÃO)'}")
+    print(linha)
+
+    if local or assume_yes:
+        return True
+    if not sys.stdin.isatty():
+        print("❌ Destino remoto sem terminal para confirmar. Use --yes (ex.: no cron do Coolify).")
+        return False
+    try:
+        resposta = input(f"Publicar em {wp_url}? Digite 'sim' para continuar: ").strip().lower()
+    except EOFError:
+        print("\nSem terminal para confirmar. Use --yes para publicar sem perguntar.")
+        return False
+    if resposta != "sim":
+        print("Cancelado. Nada foi baixado nem publicado.")
+        return False
+    return True
 
 
 def main() -> int:
@@ -59,10 +103,18 @@ def main() -> int:
     )
     reprof.add_argument("--dataset", type=int, action="append", help="ID do post dataset (pode repetir).")
     reprof.add_argument("--dry-run", action="store_true", help="Gera os perfis mas não grava nada no WordPress.")
-    reprof.add_argument(
+    parser.add_argument(
         "--env-file",
-        default=".env.local",
-        help="Arquivo .env com WP_URL/WP_USER/WP_APP_PASSWORD para o --reprofile (padrão: .env.local).",
+        default=None,
+        help=(
+            "Arquivo .env com WP_URL/WP_USER/WP_APP_PASSWORD (ex.: .env.production). "
+            "Padrão: OBSERVADADOS_ENV_FILE ou .env na coleta; .env.local no --reprofile."
+        ),
+    )
+    parser.add_argument(
+        "--yes",
+        action="store_true",
+        help="Não pede confirmação ao publicar num WordPress remoto (produção).",
     )
     reprof.add_argument(
         "--allow-remote",
@@ -78,10 +130,13 @@ def main() -> int:
         return run_reprofile(
             dataset_ids=args.dataset,
             dry_run=args.dry_run,
-            env_file=args.env_file,
+            env_file=args.env_file or ".env.local",
             allow_remote=args.allow_remote,
             save_dir=args.save_profiles,
         )
+
+    if args.publish_wordpress and not _confirm_wp_target(args.env_file, args.yes):
+        return 1
 
     # 1. Setup inicial
     conn = init_db()

@@ -1,3 +1,4 @@
+import hashlib
 import os
 import re
 import json
@@ -18,23 +19,82 @@ def _row_media_id(item: dict):
     return arquivo.get("id") if isinstance(arquivo, dict) else arquivo
 
 
-def _media_filenames(wp_url: str, auth, media_ids: list) -> dict:
-    """{media_id: nome do arquivo} para os anexos já vinculados ao post."""
+def _media_info(wp_url: str, auth, media_ids: list) -> dict:
+    """{media_id: {"name", "url", "filesize"}} para os anexos já vinculados ao post."""
     ids = [int(i) for i in media_ids if str(i).isdigit()]
     if not ids:
         return {}
     try:
         r = requests.get(
             f"{wp_url.rstrip('/')}/wp-json/wp/v2/media",
-            params={"include": ",".join(map(str, ids)), "per_page": 100, "_fields": "id,source_url"},
+            params={
+                "include": ",".join(map(str, ids)),
+                "per_page": 100,
+                "_fields": "id,source_url,media_details",
+            },
             auth=auth,
             timeout=30,
         )
         if r.status_code != 200:
             return {}
-        return {m["id"]: m.get("source_url", "").rsplit("/", 1)[-1] for m in r.json()}
+        info = {}
+        for m in r.json():
+            url = m.get("source_url", "")
+            details = m.get("media_details") or {}
+            info[m["id"]] = {
+                "name": url.rsplit("/", 1)[-1],
+                "url": url,
+                "filesize": details.get("filesize") if isinstance(details, dict) else None,
+            }
+        return info
     except requests.RequestException:
         return {}
+
+
+def _sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _same_content(media: dict, file_path: Path, auth) -> bool:
+    """O anexo já publicado tem exatamente o conteúdo do arquivo local?"""
+    local_size = file_path.stat().st_size
+    if media.get("filesize") not in (None, "") and int(media["filesize"]) != local_size:
+        return False
+    if not media.get("url"):
+        return False
+    try:
+        h = hashlib.sha256()
+        size = 0
+        with requests.get(media["url"], auth=auth, stream=True, timeout=90) as r:
+            if r.status_code != 200:
+                return False
+            for chunk in r.iter_content(1 << 20):
+                size += len(chunk)
+                h.update(chunk)
+        return size == local_size and h.hexdigest() == _sha256_file(file_path)
+    except requests.RequestException:
+        return False
+
+
+def _find_reusable_media(existing_files: list, media: dict, file_path: Path, auth):
+    """
+    ID de um anexo já vinculado ao post que é o mesmo arquivo (mesmo nome, ignorando
+    o sufixo `-N` do WP, e mesmo conteúdo). Se existir, não há por que reenviar: cada
+    upload repetido cria um anexo novo (`arquivo-1.csv`, `arquivo-2.csv`…) e deixa o
+    anterior órfão, já que a linha do repeater é substituída.
+    """
+    for item in existing_files:
+        if not isinstance(item, dict):
+            continue
+        mid = _row_media_id(item)
+        m = media.get(mid)
+        if m and _same_file(m["name"], file_path.name) and _same_content(m, file_path, auth):
+            return mid
+    return None
 
 
 def _same_file(existing_name: str | None, new_name: str) -> bool:
@@ -163,25 +223,60 @@ def publish_to_wordpress(
     }
 
     try:
-        with open(file_path, "rb") as f:
-            files = {"file": (file_path.name, f, "application/octet-stream")}
-            response = requests.post(
-                api_upload, auth=(wp_user, wp_pass), data=data, files=files, timeout=90
+        existing_files = []
+        existing_status = "draft"
+        api_datasets = f"{wp_url.rstrip('/')}/wp-json/wp/v2/dataset"
+
+        # Lê o post ANTES do upload: se o arquivo já está anexado (mesmo nome e conteúdo),
+        # reaproveita o anexo em vez de criar outro (que viraria `arquivo-1.csv`).
+        if wp_post_id:
+            # O post foi resolvido há pouco; se agora não der para lê-lo, não criamos outro.
+            get_response = requests.get(
+                f"{api_datasets}/{wp_post_id}",
+                params={"context": "edit"},
+                auth=(wp_user, wp_pass),
+                timeout=30,
             )
+            if get_response.status_code != 200:
+                print(
+                    f"\n❌ Não foi possível ler o post {wp_post_id} ({get_response.status_code}); "
+                    f"{file_path.name} não foi enviado.",
+                    file=sys.stderr,
+                )
+                return None, None, None
+            post_info = get_response.json()
+            existing_files = post_info.get("acf", {}).get("arquivos") or []
+            existing_status = post_info.get("status", "publish")
 
-        if response.status_code not in [200, 201]:
-            print(
-                f"ERRO upload customizado: {response.status_code} - {response.text}",
-                file=sys.stderr,
-            )
-            return None, None, None
+        existing_media = _media_info(
+            wp_url,
+            (wp_user, wp_pass),
+            [_row_media_id(item) for item in existing_files if isinstance(item, dict)],
+        )
 
-        upload_info = response.json()
-        media_id = upload_info.get("id")
-        if not media_id:
-            return None, None, None
+        media_id = _find_reusable_media(existing_files, existing_media, file_path, (wp_user, wp_pass))
+        if media_id:
+            print(f"já publicado, reaproveitando (ID Mídia: {media_id})", file=sys.stderr)
+        else:
+            with open(file_path, "rb") as f:
+                files = {"file": (file_path.name, f, "application/octet-stream")}
+                response = requests.post(
+                    api_upload, auth=(wp_user, wp_pass), data=data, files=files, timeout=90
+                )
 
-        print(f"OK (ID Mídia: {media_id})", file=sys.stderr)
+            if response.status_code not in [200, 201]:
+                print(
+                    f"ERRO upload customizado: {response.status_code} - {response.text}",
+                    file=sys.stderr,
+                )
+                return None, None, None
+
+            upload_info = response.json()
+            media_id = upload_info.get("id")
+            if not media_id:
+                return None, None, None
+
+            print(f"OK (ID Mídia: {media_id})", file=sys.stderr)
 
         title = wp_title or f"Dados de {collector_key.upper()} - {uf}"
         description = wp_description or f"Arquivo de coleta automática."
@@ -197,42 +292,13 @@ def publish_to_wordpress(
             "metadados": metadata_json or "{}",
         }
 
-        existing_files = []
-        existing_status = "draft"
-        api_datasets = f"{wp_url.rstrip('/')}/wp-json/wp/v2/dataset"
-
-        if wp_post_id:
-            # O post foi resolvido há pouco; se agora não der para lê-lo, não criamos outro.
-            get_response = requests.get(
-                f"{api_datasets}/{wp_post_id}",
-                params={"context": "edit"},
-                auth=(wp_user, wp_pass),
-                timeout=30,
-            )
-            if get_response.status_code != 200:
-                print(
-                    f"\n❌ Não foi possível ler o post {wp_post_id} ({get_response.status_code}); "
-                    f"mídia {media_id} enviada mas não vinculada.",
-                    file=sys.stderr,
-                )
-                return media_id, None, None
-            post_info = get_response.json()
-            existing_files = post_info.get("acf", {}).get("arquivos") or []
-            existing_status = post_info.get("status", "publish")
-
-        existing_names = _media_filenames(
-            wp_url,
-            (wp_user, wp_pass),
-            [_row_media_id(item) for item in existing_files if isinstance(item, dict)],
-        )
-
         merged_files = []
         for item in existing_files:
             if isinstance(item, dict):
                 existing_file_id = _row_media_id(item)
                 # Mesmo arquivo coletado de novo (ex.: --overwrite no mesmo mês): substitui a linha.
                 if existing_file_id == media_id or _same_file(
-                    existing_names.get(existing_file_id), file_path.name
+                    (existing_media.get(existing_file_id) or {}).get("name"), file_path.name
                 ):
                     continue
                 merged_files.append(

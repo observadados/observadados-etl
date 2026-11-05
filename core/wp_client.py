@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import sys
 import sqlite3
@@ -7,7 +8,56 @@ from datetime import datetime
 import requests
 
 
+from core.wp_resolver import WPLookupError, forget_cache, resolve_dataset_post
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _row_media_id(item: dict):
+    arquivo = item.get("arquivo")
+    return arquivo.get("id") if isinstance(arquivo, dict) else arquivo
+
+
+def _media_filenames(wp_url: str, auth, media_ids: list) -> dict:
+    """{media_id: nome do arquivo} para os anexos já vinculados ao post."""
+    ids = [int(i) for i in media_ids if str(i).isdigit()]
+    if not ids:
+        return {}
+    try:
+        r = requests.get(
+            f"{wp_url.rstrip('/')}/wp-json/wp/v2/media",
+            params={"include": ",".join(map(str, ids)), "per_page": 100, "_fields": "id,source_url"},
+            auth=auth,
+            timeout=30,
+        )
+        if r.status_code != 200:
+            return {}
+        return {m["id"]: m.get("source_url", "").rsplit("/", 1)[-1] for m in r.json()}
+    except requests.RequestException:
+        return {}
+
+
+def _same_file(existing_name: str | None, new_name: str) -> bool:
+    """Compara nomes ignorando o sufixo `-N` que o WordPress acrescenta a uploads repetidos."""
+    if not existing_name:
+        return False
+    strip = lambda n: re.sub(r"-\d+(\.[^.]+)$", r"\1", n.lower())
+    return strip(existing_name) == strip(new_name)
+
+
+def _cached_post_id(conn: sqlite3.Connection, collector_key: str, uf: str | None) -> int | None:
+    """wp_post_id já gravado no SQLite para outra fonte do mesmo coletor (cache)."""
+    if uf:
+        row = conn.execute(
+            "SELECT wp_post_id FROM sources WHERE collector_key = ? AND uf = ? AND wp_post_id IS NOT NULL LIMIT 1",
+            (collector_key, uf),
+        ).fetchone()
+    else:
+        row = conn.execute(
+            "SELECT wp_post_id FROM sources WHERE collector_key = ? AND uf IS NULL AND wp_post_id IS NOT NULL LIMIT 1",
+            (collector_key,),
+        ).fetchone()
+    return row[0] if row else None
 
 
 def _load_env(env_file: str | Path | None = None, override: bool = False) -> Path | None:
@@ -89,25 +139,20 @@ def publish_to_wordpress(
         acf_tratamento,
     ) = source_data
 
-    if not wp_post_id:
-        if uf:
-            cursor.execute(
-                """
-                SELECT wp_post_id FROM sources 
-                WHERE collector_key = ? AND uf = ? AND wp_post_id IS NOT NULL 
-                LIMIT 1
-            """,
-                (collector_key, uf),
-            )
-        else:
-            cursor.execute("""
-                SELECT wp_post_id FROM sources 
-                WHERE collector_key = ? AND uf IS NULL AND wp_post_id IS NOT NULL 
-                LIMIT 1
-            """)
-        shared_row = cursor.fetchone()
-        if shared_row:
-            wp_post_id = shared_row[0]
+    # O post certo é resolvido no WordPress (meta collector_key); o SQLite é só cache.
+    # Isso acontece ANTES do upload, para não deixar mídia órfã se a busca falhar.
+    try:
+        wp_post_id = resolve_dataset_post(
+            wp_url,
+            (wp_user, wp_pass),
+            collector_key,
+            uf,
+            cached_post_id=wp_post_id or _cached_post_id(conn, collector_key, uf),
+            title=wp_title or f"Dados de {collector_key.upper()} - {uf}",
+        )
+    except WPLookupError as exc:
+        print(f"\n❌ {exc}\n   Publicação de {file_path.name} cancelada (nenhum post criado).", file=sys.stderr)
+        return None, None, None
 
     api_upload = f"{wp_url.rstrip('/')}/wp-json/observadados/v1/upload-dataset"
     data = {
@@ -156,30 +201,37 @@ def publish_to_wordpress(
         api_datasets = f"{wp_url.rstrip('/')}/wp-json/wp/v2/dataset"
 
         if wp_post_id:
-            try:
-                get_response = requests.get(
-                    f"{api_datasets}/{wp_post_id}", auth=(wp_user, wp_pass), timeout=30
+            # O post foi resolvido há pouco; se agora não der para lê-lo, não criamos outro.
+            get_response = requests.get(
+                f"{api_datasets}/{wp_post_id}",
+                params={"context": "edit"},
+                auth=(wp_user, wp_pass),
+                timeout=30,
+            )
+            if get_response.status_code != 200:
+                print(
+                    f"\n❌ Não foi possível ler o post {wp_post_id} ({get_response.status_code}); "
+                    f"mídia {media_id} enviada mas não vinculada.",
+                    file=sys.stderr,
                 )
-                if get_response.status_code == 200:
-                    post_info = get_response.json()
-                    existing_files = post_info.get("acf", {}).get("arquivos") or []
-                    existing_status = post_info.get("status", "publish")
-                else:
-                    wp_post_id = None
-            except Exception:
-                wp_post_id = None
+                return media_id, None, None
+            post_info = get_response.json()
+            existing_files = post_info.get("acf", {}).get("arquivos") or []
+            existing_status = post_info.get("status", "publish")
+
+        existing_names = _media_filenames(
+            wp_url,
+            (wp_user, wp_pass),
+            [_row_media_id(item) for item in existing_files if isinstance(item, dict)],
+        )
 
         merged_files = []
         for item in existing_files:
             if isinstance(item, dict):
-                existing_file_id = (
-                    item.get("arquivo", {}).get("id")
-                    if isinstance(item.get("arquivo"), dict)
-                    else item.get("arquivo")
-                )
-                if (
-                    existing_file_id == media_id
-                    or item.get("descricao") == file_path.name
+                existing_file_id = _row_media_id(item)
+                # Mesmo arquivo coletado de novo (ex.: --overwrite no mesmo mês): substitui a linha.
+                if existing_file_id == media_id or _same_file(
+                    existing_names.get(existing_file_id), file_path.name
                 ):
                     continue
                 merged_files.append(
@@ -242,6 +294,8 @@ def publish_to_wordpress(
             "content": content_val,
             "status": existing_status,
             "acf": acf_payload,
+            # Vínculo coletor → post, usado por resolve_dataset_post nas próximas coletas.
+            "meta": {"collector_key": collector_key or "", "collector_uf": uf or ""},
         }
 
         final_post_id = wp_post_id
@@ -277,6 +331,13 @@ def publish_to_wordpress(
                 )
             conn.commit()
             final_post_id = new_post_id
+            forget_cache()
+        else:
+            print(
+                f"\n❌ Falha ao salvar o dataset ({post_response.status_code}): {post_response.text[:300]}",
+                file=sys.stderr,
+            )
+            return media_id, None, None
 
         return media_id, final_post_id, existing_status
 
@@ -303,33 +364,27 @@ def update_last_scan_only(conn: sqlite3.Connection, source_id: int) -> bool:
         return False
 
     cursor = conn.cursor()
-    cursor.execute("SELECT wp_post_id, collector_key, uf FROM sources WHERE id = ?", (source_id,))
+    cursor.execute("SELECT wp_post_id, collector_key, uf, wp_title FROM sources WHERE id = ?", (source_id,))
     row = cursor.fetchone()
     if not row:
         return False
 
-    wp_post_id, collector_key, uf = row
-    if not wp_post_id:
-        if uf:
-            cursor.execute(
-                """
-                SELECT wp_post_id FROM sources 
-                WHERE collector_key = ? AND uf = ? AND wp_post_id IS NOT NULL 
-                LIMIT 1
-            """,
-                (collector_key, uf),
-            )
-        else:
-            cursor.execute("""
-                SELECT wp_post_id FROM sources 
-                WHERE collector_key = ? AND uf IS NULL AND wp_post_id IS NOT NULL 
-                LIMIT 1
-            """)
-        shared_row = cursor.fetchone()
-        if shared_row:
-            wp_post_id = shared_row[0]
-            cursor.execute("UPDATE sources SET wp_post_id = ? WHERE id = ?", (wp_post_id, source_id))
-            conn.commit()
+    wp_post_id, collector_key, uf, wp_title = row
+    try:
+        wp_post_id = resolve_dataset_post(
+            wp_url,
+            (wp_user, wp_pass),
+            collector_key,
+            uf,
+            cached_post_id=wp_post_id or _cached_post_id(conn, collector_key, uf),
+            title=wp_title or f"Dados de {collector_key.upper()} - {uf}",
+        )
+    except WPLookupError as exc:
+        print(f"⚠️ {exc}", file=sys.stderr)
+        return False
+    if wp_post_id:
+        cursor.execute("UPDATE sources SET wp_post_id = ? WHERE id = ?", (wp_post_id, source_id))
+        conn.commit()
 
     if not wp_post_id:
         print(
@@ -351,7 +406,8 @@ def update_last_scan_only(conn: sqlite3.Connection, source_id: int) -> bool:
     post_payload = {
         "acf": {
             "data_ultima_varredura": current_time
-        }
+        },
+        "meta": {"collector_key": collector_key or "", "collector_uf": uf or ""},
     }
 
     try:

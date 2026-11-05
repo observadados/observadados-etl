@@ -123,6 +123,15 @@ Baixa as novas fontes e publica arquivos e metadados estruturais na biblioteca d
 python main.py --publish-wordpress
 ```
 
+**Como o post de cada coletor é encontrado** (`core/wp_resolver.py`): o vínculo coletor → post fica no próprio WordPress, nos metas `collector_key` e `collector_uf` do post `dataset` (registrados pelo tema em `inc/dataset-collector.php`, que precisa estar publicado antes). A busca segue esta ordem:
+
+1. Post com o mesmo `collector_key`/`collector_uf`.
+2. `wp_post_id` do `collector.db`, que serve só de cache.
+3. Título idêntico, para posts antigos ainda sem meta. O post encontrado é adotado e recebe o meta.
+4. Se nada for encontrado, cria um post novo.
+
+Se a busca falhar (erro de rede ou de permissão, tema sem o meta, vários posts com o mesmo título), a publicação daquele arquivo é **cancelada** e nenhum post é criado. Por isso, `--reset-db` ou trocar de ambiente (`.env` local ou produção) não geram mais datasets duplicados. Recoletar o mesmo arquivo (por exemplo, com `--overwrite`) substitui a linha correspondente no repeater `arquivos`, em vez de acrescentar outra.
+
 ### 3. Forçar Sobrescrita e Download
 Ignora a frequência de verificação local e o cache do disco, forçando o robô a realizar novamente o download de todos os arquivos de todas as fontes:
 
